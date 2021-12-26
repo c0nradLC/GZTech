@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+  
+  api:
+    restart: always
+    image: gztech-api:latest
+    environment:
+      env_file: ./api/.env
+      NODE_ENV: 'staging'
+      TYPEORM_DATABASE: 'gztech'
+      API_URL: 'http://localhost:3333'
+      APP_URL: 'http://localhost:3000'
+    volumes:
+      - ./.docker/media:/usr/app/media
+    depends_on:
+      - mysql
+  
+  app:
+    restart: always
+    image: gztech-app:latest
+    environment:
+      env_file: '/usr/app/.env'
+      NODE_ENV: 'staging'
+      REACT_APP_API_URL: 'http://localhost:3333'
+      REACT_APP_APP_URL: 'http://localhost:3000'
+    volumes:
+      - ./.docker/media:/usr/app/public/media
+    depends_on:
+      - api
+
+  mysql:
+    restart: always
+    image: 'mysql:5.7'
+    ports:
+      - '3306:3306'
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: 'gztech'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - ./.docker/mysql/data:/var/lib/mysql
+      - ./.docker/mysql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8090:80"
+    environment:
+      - PMA_HOST=mysql
+
+volumes:
+  gztech-mysql:
+    driver: local
+
+networks:
+  default:
+    external: 
+      name: gztech-gateway
