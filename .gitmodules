@@ -1,3 +1,6 @@
 [submodule "gztech-api"]
 	path = gztech-api
 	url = https://github.com/c0nradLC/gztech-api.git
+[submodule "gztech-app"]
+	path = gztech-app
+	url = https://github.com/c0nradLC/gztech-app.git
